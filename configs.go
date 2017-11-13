@@ -16,19 +16,12 @@ type SSHConfig struct {
 	User              string `yaml:"User"`
 	IdentityFile      string `yaml:"IndentityFile"`
 	Port              int    `yaml:"Port"`
-	KeepaliveInterval int64  `yaml:"KeepaliveInterval"`
-	Timeout           int64  `yaml:"Timeout"`
+	KeepaliveInterval int    `yaml:"KeepaliveInterval"`
+	Timeout           int    `yaml:"Timeout"`
 }
 
 func (c *SSHConfig) getServerAddr() string {
-	var p int
-	if c.Port == 0 {
-		p = 22
-	} else {
-		p = c.Port
-	}
-
-	return fmt.Sprintf("%s:%d", c.HostName, p)
+	return fmt.Sprintf("%s:%d", c.HostName, c.Port)
 }
 
 func (c *SSHConfig) getKeyPath() string {
@@ -81,6 +74,13 @@ func detectConfigPath(p string) string {
 	return fmt.Sprintf("%s/config.yml", dirPath)
 }
 
+var (
+	defaultCheckInterval     = 10
+	defaultKeepaliveInterval = 3
+	defaultTimeout           = 5
+	defaultSSHPort           = 22
+)
+
 func LoadKushiConfigs(configPath string) (c *KushiConfig) {
 
 	bytes, err := ioutil.ReadFile(detectConfigPath(configPath))
@@ -93,6 +93,22 @@ func LoadKushiConfigs(configPath string) (c *KushiConfig) {
 	if err != nil {
 		zap.S().Fatal(err)
 		return
+	}
+
+	if c.CheckInterval == 0 {
+		c.CheckInterval = defaultCheckInterval
+	}
+
+	if c.SSHConfig.Port == 0 {
+		c.SSHConfig.Port = defaultSSHPort
+	}
+
+	if c.SSHConfig.KeepaliveInterval == 0 {
+		c.SSHConfig.KeepaliveInterval = defaultKeepaliveInterval
+	}
+
+	if c.SSHConfig.Timeout == 0 {
+		c.SSHConfig.Timeout = defaultTimeout
 	}
 
 	return

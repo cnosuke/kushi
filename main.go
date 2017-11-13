@@ -108,6 +108,7 @@ func main() {
 		zap.S().Infof("Starting agent")
 
 		config := LoadKushiConfigs(configPath)
+		zap.S().Infow("Config loaded", "config", config)
 
 		keyPath := config.SSHConfig.getKeyPath()
 		zap.S().Infof("Reading SSH key from %s", keyPath)
