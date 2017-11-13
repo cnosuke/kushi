@@ -26,3 +26,13 @@ release-pack: cross-build
 			zip -j dist/$(NAME)-$$os-$$arch.zip dist/$$os-$$arch/$(NAME); \
 		done; \
 	done
+
+.PHONY: glide
+glide:
+ifeq ($(shell command -v glide 2> /dev/null),)
+	curl https://glide.sh/get | sh
+endif
+
+.PHONY: deps
+deps: glide
+	glide install -v
