@@ -53,9 +53,9 @@ func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time
 var (
 	// Version and Revision are replaced when building.
 	// To set specific version, edit Makefile.
-	Version  = "0.0.1"
-	Revision = "xxx"
-	Name     = "kushi"
+	Version  string
+	Revision string
+	Name     string
 )
 
 func main() {
