@@ -6,7 +6,7 @@ import (
 
 	"context"
 
-	"github.com/k0kubun/pp"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -57,10 +57,11 @@ func (c *SSHConn) doKeepAlive(cli *ssh.Client, ctx context.Context, parentCancel
 		select {
 		case <-resChan:
 		case err = <-errChan:
-			pp.Println(err)
+			zap.S().Error(err)
 			parentCancel()
 			break
 		case <-keepAliveCtx.Done():
+			zap.S().Warnf("KeepAlive timeout (%d seconds)", c.Timeout)
 			parentCancel()
 			break
 		case <-ctx.Done():

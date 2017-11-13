@@ -1,19 +1,19 @@
 package main
 
 import (
-	"io"
-
 	"context"
+	"io"
+	"io/ioutil"
 	"net"
-
+	"net/http"
 	"sync"
 
-	"github.com/k0kubun/pp"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 	yaml "gopkg.in/yaml.v2"
 )
 
-var gistURL = ""
+var gistURL = "https://gist.githubusercontent.com/cnosuke/4b4322d3c9537c4265252a017b021c49/raw/ports.yml"
 
 type binding struct {
 	Src string `yaml:"src"`
@@ -21,25 +21,17 @@ type binding struct {
 }
 
 func NewBindingList() (list []*binding, err error) {
-	//res, err := http.Get(gistURL)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//body, err := ioutil.ReadAll(res.Body)
-	//defer res.Body.Close()
-	//if err != nil {
-	//	return
-	//}
+	zap.S().Infof("Get binding list from %s", gistURL)
+	res, err := http.Get(gistURL)
+	if err != nil {
+		return
+	}
 
-	str := `
-- src: localhost:8080
-  dst: example.com:80
-- src: localhost:4443
-  dst: example.com:443
-`
-
-	body := []byte(str)
+	body, err := ioutil.ReadAll(res.Body)
+	defer res.Body.Close()
+	if err != nil {
+		return
+	}
 
 	err = yaml.Unmarshal(body, &list)
 	if err != nil {
@@ -81,7 +73,7 @@ func (b *binding) pipe(srcConn net.Conn, destConn net.Conn, ctx context.Context,
 	case <-ctx.Done():
 	case <-completeChan:
 	case err = <-errChan:
-		pp.Println(err.Error())
+		zap.S().Error(err)
 	}
 
 	return
@@ -89,18 +81,17 @@ func (b *binding) pipe(srcConn net.Conn, destConn net.Conn, ctx context.Context,
 
 func (b *binding) handle(cli *ssh.Client, ctx context.Context, cancelFunc context.CancelFunc, sessWg *sync.WaitGroup) {
 	lis, err := net.Listen("tcp", b.Src)
+	if err != nil {
+		zap.S().Fatal(err)
+		return
+	}
 
 	go func(lis net.Listener, wg *sync.WaitGroup) {
 		<-ctx.Done()
-		pp.Printf("Close %s\n", b.Src)
+		zap.S().Infof("Closing %s", b.Src)
 		lis.Close()
 		wg.Done()
 	}(lis, sessWg)
-
-	if err != nil {
-		pp.Fatalln(err.Error())
-		return
-	}
 
 	var wg sync.WaitGroup
 
@@ -109,14 +100,14 @@ func (b *binding) handle(cli *ssh.Client, ctx context.Context, cancelFunc contex
 		localConn, err := lis.Accept()
 
 		if err != nil {
-			pp.Println(err.Error())
+			zap.S().Warn(err)
 			return
 		}
 
 		sshConn, err := cli.Dial("tcp", b.Dst)
 
 		if err != nil {
-			pp.Println(err.Error())
+			zap.S().Warn(err)
 			cancelFunc()
 			return
 		}

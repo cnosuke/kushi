@@ -3,36 +3,32 @@ package main
 import (
 	"context"
 	"io/ioutil"
-
+	"sync"
 	"time"
 
-	"sync"
-
-	"github.com/k0kubun/pp"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
 
 func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time.Duration, ctx context.Context, cancel context.CancelFunc) (err error) {
+	zap.S().Infof("Starting sessions")
+
 	cli, err := NewSSHClient(addr, config, timeout, keepAlive, ctx, cancel)
 	if err != nil {
-		pp.Println(err.Error())
-		pp.Println("retry after 10 seconds")
-		time.Sleep(10 * time.Second)
+		zap.S().Error(err)
+		zap.S().Warnf("Retrying after 5 seconds...")
+		time.Sleep(5 * time.Second)
 		return
 	}
 
 	defer cli.Close()
 
-	if err != nil {
-		pp.Fatalln(err.Error())
-	}
-
 	bindingList, err := NewBindingList()
 	if err != nil {
-		pp.Fatalln(err.Error())
+		zap.S().Error(err)
 	}
 
-	pp.Println(bindingList)
+	zap.S().Infow("Got binding list", "bindings", bindingList)
 
 	var wg sync.WaitGroup
 
@@ -44,20 +40,27 @@ func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time
 	<-ctx.Done()
 	wg.Wait()
 
-	pp.Println("Session done")
-
+	zap.S().Infof("Session finished")
 	return
 }
 
 func main() {
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync()
+
+	undo := zap.ReplaceGlobals(logger)
+	defer undo()
+
+	zap.S().Infof("Starting agent")
+
 	key, err := ioutil.ReadFile("/Users/cnosuke/.ssh/id_ecdsa")
 	if err != nil {
-		pp.Fatalln(err)
+		zap.S().Fatal(err)
 	}
 
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		pp.Fatalln(signer)
+		zap.S().Fatal(err)
 	}
 
 	auth := []ssh.AuthMethod{
@@ -73,7 +76,6 @@ func main() {
 	}
 
 	for {
-		pp.Println("Starting sessions")
 		ctx, cancel := context.WithCancel(context.Background())
 		startSession("", sshConfig, 5*time.Second, 2*time.Second, ctx, cancel)
 	}
