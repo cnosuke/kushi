@@ -59,13 +59,13 @@ func (c *SSHConn) doKeepAlive(cli *ssh.Client, ctx context.Context, parentCancel
 		case err = <-errChan:
 			zap.S().Error(err)
 			parentCancel()
-			break
+			return
 		case <-keepAliveCtx.Done():
-			zap.S().Warnf("KeepAlive timeout (%d seconds)", c.Timeout)
+			zap.S().Warnf("KeepAlive timeout (%d seconds)", c.Timeout/time.Second)
 			parentCancel()
-			break
+			return
 		case <-ctx.Done():
-			break
+			return
 		}
 	}
 }

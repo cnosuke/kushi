@@ -13,16 +13,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-var gistURL = "https://gist.githubusercontent.com/cnosuke/4b4322d3c9537c4265252a017b021c49/raw/ports.yml"
-
 type binding struct {
 	Src string `yaml:"src"`
 	Dst string `yaml:"dst"`
 }
 
-func NewBindingList() (list []*binding, err error) {
-	zap.S().Infof("Get binding list from %s", gistURL)
-	res, err := http.Get(gistURL)
+func NewBindingList(url string) (list []*binding, err error) {
+	zap.S().Infof("Get binding list from %s", url)
+	res, err := http.Get(url)
 	if err != nil {
 		return
 	}

@@ -6,11 +6,17 @@ import (
 	"sync"
 	"time"
 
+	cli "github.com/urfave/cli"
+
+	"fmt"
+
+	"os"
+
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
 
-func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time.Duration, ctx context.Context, cancel context.CancelFunc) (err error) {
+func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time.Duration, bindingListURL string, ctx context.Context, cancel context.CancelFunc) (err error) {
 	zap.S().Infof("Starting sessions")
 
 	cli, err := NewSSHClient(addr, config, timeout, keepAlive, ctx, cancel)
@@ -23,7 +29,7 @@ func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time
 
 	defer cli.Close()
 
-	bindingList, err := NewBindingList()
+	bindingList, err := NewBindingList(bindingListURL)
 	if err != nil {
 		zap.S().Error(err)
 	}
@@ -44,39 +50,105 @@ func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time
 	return
 }
 
+var (
+	// Version and Revision are replaced when building.
+	// To set specific version, edit Makefile.
+	Version  = "0.0.1"
+	Revision = "xxx"
+	Name     = "kushi"
+)
+
 func main() {
-	logger, _ := zap.NewDevelopment()
-	defer logger.Sync()
+	app := cli.NewApp()
+	app.Version = fmt.Sprintf("%s (%s)", Version, Revision)
+	app.Name = Name
+	app.Usage = "SSH Agent to forwarding ports as configs."
 
-	undo := zap.ReplaceGlobals(logger)
-	defer undo()
-
-	zap.S().Infof("Starting agent")
-
-	key, err := ioutil.ReadFile("/Users/cnosuke/.ssh/id_ecdsa")
-	if err != nil {
-		zap.S().Fatal(err)
+	var configPath string
+	var logSTDOUT bool
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "config, c",
+			Usage:       "Config path",
+			Value:       "",
+			Destination: &configPath,
+		},
+		cli.BoolFlag{
+			Name:        "stdout",
+			Usage:       "Output logs to STDOUT",
+			Destination: &logSTDOUT,
+		},
 	}
 
-	signer, err := ssh.ParsePrivateKey(key)
-	if err != nil {
-		zap.S().Fatal(err)
+	app.Action = func(c *cli.Context) error {
+		zapConfig := zap.NewDevelopmentConfig()
+		if logSTDOUT {
+			zapConfig.OutputPaths = []string{"stdout"}
+		} else {
+			t := time.Now().Local()
+			logsDir := fmt.Sprintf("%s/logs", detectConfigDir())
+			logPath := fmt.Sprintf("%s/%s.log", logsDir, t.Format(("20060102150405")))
+			if _, err := os.Stat(logsDir); err != nil {
+				os.MkdirAll(logsDir, 0755)
+			}
+			zapConfig.OutputPaths = []string{logPath}
+		}
+
+		logger, err := zapConfig.Build()
+		if err != nil {
+			fmt.Fprint(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
+		defer logger.Sync()
+
+		undo := zap.ReplaceGlobals(logger)
+		defer undo()
+
+		zap.S().Infof("Starting agent")
+
+		config := LoadKushiConfigs(configPath)
+
+		keyPath := config.SSHConfig.getKeyPath()
+		zap.S().Infof("Reading SSH key from %s", keyPath)
+
+		key, err := ioutil.ReadFile(keyPath)
+		if err != nil {
+			zap.S().Fatal(err)
+		}
+
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			zap.S().Fatal(err)
+		}
+
+		auth := []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
+		}
+
+		hostKey := ssh.InsecureIgnoreHostKey()
+
+		sshConfig := &ssh.ClientConfig{
+			User:            config.SSHConfig.User,
+			Auth:            auth,
+			HostKeyCallback: hostKey,
+		}
+
+		for {
+			ctx, cancel := context.WithCancel(context.Background())
+			startSession(
+				config.SSHConfig.getServerAddr(),
+				sshConfig,
+				time.Duration(config.SSHConfig.Timeout)*time.Second,
+				time.Duration(config.SSHConfig.KeepaliveInterval)*time.Second,
+				config.BindingConfigsURL,
+				ctx,
+				cancel,
+			)
+		}
+
+		return nil
 	}
 
-	auth := []ssh.AuthMethod{
-		ssh.PublicKeys(signer),
-	}
-
-	hostKey := ssh.InsecureIgnoreHostKey()
-
-	sshConfig := &ssh.ClientConfig{
-		User:            "staff",
-		Auth:            auth,
-		HostKeyCallback: hostKey,
-	}
-
-	for {
-		ctx, cancel := context.WithCancel(context.Background())
-		startSession("", sshConfig, 5*time.Second, 2*time.Second, ctx, cancel)
-	}
+	app.Run(os.Args)
 }
