@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
@@ -18,25 +20,95 @@ type binding struct {
 	Dst string `yaml:"dst"`
 }
 
-func NewBindingList(url string) (list []*binding, err error) {
-	zap.S().Infof("Get binding list from %s", url)
-	res, err := http.Get(url)
-	if err != nil {
-		return
-	}
+type bindingsCache struct {
+	bindingList []*binding
+	etag        string
+	mu          sync.RWMutex
+	url         string
+	interval    int
+	cancel      context.CancelFunc
+}
 
-	body, err := ioutil.ReadAll(res.Body)
-	defer res.Body.Close()
-	if err != nil {
-		return
-	}
+func (c *bindingsCache) Read() []*binding {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
-	err = yaml.Unmarshal(body, &list)
-	if err != nil {
-		return
-	}
+	return c.bindingList
+}
+
+func (c *bindingsCache) CompareEtag(etag string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	return c.etag == etag
+}
+
+func (c *bindingsCache) Update(b []*binding, etag string) {
+	c.mu.Lock()
+	c.bindingList = b
+	c.etag = etag
+	c.mu.Unlock()
 
 	return
+}
+
+func (c *bindingsCache) Watch() {
+	go func() {
+		for {
+			c.Fetch()
+			time.Sleep(time.Duration(c.interval) * time.Second)
+		}
+	}()
+}
+
+func (c *bindingsCache) Fetch() {
+	req, _ := http.NewRequest("GET", c.url, nil)
+	req.Header.Set("If-None-Match", fmt.Sprintf("\"%s\"", c.etag))
+	cli := http.Client{Timeout: 5 * time.Second}
+	res, err := cli.Do(req)
+
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	switch res.StatusCode {
+	case 304:
+		// Do nothing because response is `304 Not Modified`.
+	case 200:
+		etag := res.Header.Get("ETag")
+		body, err := ioutil.ReadAll(res.Body)
+		defer res.Body.Close()
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		var b []*binding
+		err = yaml.Unmarshal(body, &b)
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		c.Update(b, etag)
+		zap.S().Infow("Binding list updated", "url", c.url, "etag", etag, "bindings", b)
+		if c.cancel != nil {
+			c.cancel()
+		}
+	default:
+		zap.S().Warnw("Unknown GET bindings response", "url", c.url, "status", res.Status)
+	}
+}
+
+func NewBindingsCache(url string, interval int) *bindingsCache {
+	b := bindingsCache{
+		url:      url,
+		interval: interval,
+	}
+	b.Fetch()
+
+	return &b
 }
 
 func (b *binding) pipe(srcConn net.Conn, destConn net.Conn, ctx context.Context, wg *sync.WaitGroup) (err error) {

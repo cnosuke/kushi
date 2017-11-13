@@ -1,5 +1,5 @@
 NAME     := kushi
-VERSION  := v20171113
+VERSION  := v20171114
 
 SRCS    := $(shell find . -type f -name '*.go')
 LDFLAGS := -ldflags="-s -w -X \"main.Name=$(NAME)\" -X \"main.Version=$(VERSION)\" -X \"main.Revision=`tail -1 .git/logs/HEAD | awk '{print $$2}'`\" -extldflags \"-static\""

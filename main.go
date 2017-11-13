@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time.Duration, bindingListURL string, ctx context.Context, cancel context.CancelFunc) (err error) {
+func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time.Duration, b *bindingsCache, ctx context.Context, cancel context.CancelFunc) (err error) {
 	zap.S().Infof("Starting sessions")
 
 	cli, err := NewSSHClient(addr, config, timeout, keepAlive, ctx, cancel)
@@ -29,16 +29,12 @@ func startSession(addr string, config *ssh.ClientConfig, timeout, keepAlive time
 
 	defer cli.Close()
 
-	bindingList, err := NewBindingList(bindingListURL)
-	if err != nil {
-		zap.S().Error(err)
-	}
-
-	zap.S().Infow("Got binding list", "bindings", bindingList)
+	bindings := b.Read()
+	zap.S().Infow("Got binding list", "bindings", bindings)
 
 	var wg sync.WaitGroup
 
-	for _, b := range bindingList {
+	for _, b := range bindings {
 		wg.Add(1)
 		go b.handle(cli, ctx, cancel, &wg)
 	}
@@ -135,14 +131,19 @@ func main() {
 			HostKeyCallback: hostKey,
 		}
 
+		b := NewBindingsCache(config.BindingConfigsURL, config.CheckInterval)
+		b.Watch()
+
 		for {
 			ctx, cancel := context.WithCancel(context.Background())
+			b.cancel = cancel
+
 			startSession(
 				config.SSHConfig.getServerAddr(),
 				sshConfig,
 				time.Duration(config.SSHConfig.Timeout)*time.Second,
 				time.Duration(config.SSHConfig.KeepaliveInterval)*time.Second,
-				config.BindingConfigsURL,
+				b,
 				ctx,
 				cancel,
 			)

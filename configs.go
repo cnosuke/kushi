@@ -75,7 +75,7 @@ func detectConfigPath(p string) string {
 }
 
 var (
-	defaultCheckInterval     = 10
+	defaultCheckInterval     = 600
 	defaultKeepaliveInterval = 3
 	defaultTimeout           = 5
 	defaultSSHPort           = 22
