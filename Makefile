@@ -36,3 +36,7 @@ endif
 .PHONY: deps
 deps: glide
 	glide install -v
+
+.PHONY: install
+install: bin/$(NAME)
+	cp bin/$(NAME) $$GOPATH/bin/$(NAME)
