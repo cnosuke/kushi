@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 	"time"
@@ -51,14 +50,46 @@ var (
 	Name     string
 )
 
+const (
+	LogSTDOUTPath     = "stdout"
+	LogTimeFormat     = "20060102150405"
+	LogFilePermission = 0755
+)
+
+func buildZapLogger(logSTDOUT bool) *zap.Logger {
+	zapConfig := zap.NewDevelopmentConfig()
+	if logSTDOUT {
+		zapConfig.OutputPaths = []string{LogSTDOUTPath}
+	} else {
+		t := time.Now().Local()
+		logsDir := fmt.Sprintf("%s/logs", detectConfigDir())
+		logPath := fmt.Sprintf("%s/%s.log", logsDir, t.Format(LogTimeFormat))
+		if _, err := os.Stat(logsDir); err != nil {
+			os.MkdirAll(logsDir, LogFilePermission)
+		}
+		zapConfig.OutputPaths = []string{logPath}
+	}
+
+	logger, err := zapConfig.Build()
+	if err != nil {
+		fmt.Fprint(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+
+	return logger
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Version = fmt.Sprintf("%s (%s)", Version, Revision)
 	app.Name = Name
 	app.Usage = "SSH Agent to forwarding ports as configs."
 
-	var configPath string
-	var logSTDOUT bool
+	var (
+		configPath    string
+		logSTDOUTFlag bool
+	)
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "config, c",
@@ -69,30 +100,12 @@ func main() {
 		cli.BoolFlag{
 			Name:        "stdout",
 			Usage:       "Output logs to STDOUT",
-			Destination: &logSTDOUT,
+			Destination: &logSTDOUTFlag,
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-		zapConfig := zap.NewDevelopmentConfig()
-		if logSTDOUT {
-			zapConfig.OutputPaths = []string{"stdout"}
-		} else {
-			t := time.Now().Local()
-			logsDir := fmt.Sprintf("%s/logs", detectConfigDir())
-			logPath := fmt.Sprintf("%s/%s.log", logsDir, t.Format(("20060102150405")))
-			if _, err := os.Stat(logsDir); err != nil {
-				os.MkdirAll(logsDir, 0755)
-			}
-			zapConfig.OutputPaths = []string{logPath}
-		}
-
-		logger, err := zapConfig.Build()
-		if err != nil {
-			fmt.Fprint(os.Stderr, err.Error())
-			os.Exit(1)
-		}
-
+		logger := buildZapLogger(logSTDOUTFlag)
 		defer logger.Sync()
 
 		undo := zap.ReplaceGlobals(logger)
@@ -103,31 +116,6 @@ func main() {
 		config := LoadKushiConfigs(configPath)
 		zap.S().Infow("Config loaded", "config", config)
 
-		keyPath := config.SSHConfig.getKeyPath()
-		zap.S().Infof("Reading SSH key from %s", keyPath)
-
-		key, err := ioutil.ReadFile(keyPath)
-		if err != nil {
-			zap.S().Fatal(err)
-		}
-
-		signer, err := ssh.ParsePrivateKey(key)
-		if err != nil {
-			zap.S().Fatal(err)
-		}
-
-		auth := []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		}
-
-		hostKey := ssh.InsecureIgnoreHostKey()
-
-		sshConfig := &ssh.ClientConfig{
-			User:            config.SSHConfig.User,
-			Auth:            auth,
-			HostKeyCallback: hostKey,
-		}
-
 		b := NewBindingsCache(config.BindingConfigsURL, config.CheckInterval)
 		b.Watch()
 
@@ -137,7 +125,7 @@ func main() {
 
 			startSession(
 				config.SSHConfig.getServerAddr(),
-				sshConfig,
+				config.SSHConfig.getClientConfig(),
 				time.Duration(config.SSHConfig.Timeout)*time.Second,
 				time.Duration(config.SSHConfig.KeepaliveInterval)*time.Second,
 				b,

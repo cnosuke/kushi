@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"go.uber.org/zap"
+	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 )
 
@@ -42,6 +43,33 @@ func (c *SSHConfig) getKeyPath() string {
 	zap.S().Fatalf("SSH key file not found.")
 
 	return ""
+}
+
+func (c *SSHConfig) getClientConfig() *ssh.ClientConfig {
+	keyPath := c.getKeyPath()
+	zap.S().Infof("Reading SSH key from %s", keyPath)
+
+	key, err := ioutil.ReadFile(keyPath)
+	if err != nil {
+		zap.S().Fatal(err)
+	}
+
+	signer, err := ssh.ParsePrivateKey(key)
+	if err != nil {
+		zap.S().Fatal(err)
+	}
+
+	auth := []ssh.AuthMethod{
+		ssh.PublicKeys(signer),
+	}
+
+	hostKey := ssh.InsecureIgnoreHostKey()
+
+	return &ssh.ClientConfig{
+		User:            c.User,
+		Auth:            auth,
+		HostKeyCallback: hostKey,
+	}
 }
 
 type KushiConfig struct {
