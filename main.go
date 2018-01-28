@@ -2,16 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 	"time"
 
-	cli "github.com/urfave/cli"
-
-	"fmt"
-
-	"os"
-
+	"github.com/urfave/cli"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )

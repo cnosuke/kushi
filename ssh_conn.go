@@ -1,10 +1,9 @@
 package main
 
 import (
+	"context"
 	"net"
 	"time"
-
-	"context"
 
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"io/ioutil"
-
-	"os"
-
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
