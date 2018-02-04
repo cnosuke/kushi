@@ -31,7 +31,7 @@ release-pack: cross-build
 .PHONY: install-dep
 install-dep:
 ifeq ($(shell command -v dep 2> /dev/null),)
-	go install -v github.com/golang/dep/cmd/dep
+	go get -u github.com/golang/dep && go install -v github.com/golang/dep/cmd/dep
 endif
 
 .PHONY: deps
