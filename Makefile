@@ -28,15 +28,15 @@ release-pack: cross-build
 		done; \
 	done
 
-.PHONY: glide
-glide:
-ifeq ($(shell command -v glide 2> /dev/null),)
-	curl https://glide.sh/get | sh
+.PHONY: install-dep
+install-dep:
+ifeq ($(shell command -v dep 2> /dev/null),)
+	go install -v github.com/golang/dep/cmd/de
 endif
 
 .PHONY: deps
-deps: glide
-	glide install -v
+deps: install-dep
+	dep ensure -v
 
 .PHONY: install
 install: bin/$(NAME)
