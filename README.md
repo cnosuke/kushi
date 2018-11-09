@@ -16,7 +16,7 @@ SSH Client + autossh + sync portfowarding settings on `.ssh/config`
 BindingConfigsURL: https://s3-ap-northeast-1.amazonaws.com/path_to_your_binding_list.yaml (required)
 CheckInterval: 600 (seconds, optional, default = 600)
 SSHConfig:
-  HostName: your_ssh_server_hostname (reequired)
+  HostName: your_ssh_server_hostname (required)
   User: your_ssh_username (required)
   IdentityFile: path_to_your_ssh_identity_key_file (optional, default = $HOME/.ssh/id_ecdsa, $HOME/.ssh/id_rsa)
   Port: your_ssh_server_port (optional, default = 22)
