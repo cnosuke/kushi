@@ -13,7 +13,7 @@ import (
 type SSHConfig struct {
 	HostName          string `yaml:"HostName"`
 	User              string `yaml:"User"`
-	IdentityFile      string `yaml:"IndentityFile"`
+	IdentityFile      string `yaml:"IdentityFile"`
 	Port              int    `yaml:"Port"`
 	KeepaliveInterval int    `yaml:"KeepaliveInterval"`
 	Timeout           int    `yaml:"Timeout"`
