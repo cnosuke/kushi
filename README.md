@@ -18,7 +18,7 @@ CheckInterval: 600 (seconds, optional, default = 600)
 SSHConfig:
   HostName: your_ssh_server_hostname (required)
   User: your_ssh_username (required)
-  IdentityFile: path_to_your_ssh_identity_key_file (optional, default = $HOME/.ssh/id_ecdsa, $HOME/.ssh/id_rsa)
+  IdentityFile: path_to_your_ssh_identity_key_file (optional, default = $HOME/.ssh/id_ed25519, $HOME/.ssh/id_rsa)
   Port: your_ssh_server_port (optional, default = 22)
   KeepaliveInterval: 3 (seconds, optional, default = 3)
   Timeout: 5 (seconds, optional, default = 5)
