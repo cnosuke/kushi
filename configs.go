@@ -30,7 +30,7 @@ func (c *SSHConfig) getKeyPath() string {
 
 	sshDir := fmt.Sprintf("%s/.ssh", os.Getenv("HOME"))
 
-	ecdsaPath := fmt.Sprintf("%s/id_ecdsa", sshDir)
+	ecdsaPath := fmt.Sprintf("%s/id_ed25519", sshDir)
 	if _, err := os.Stat(ecdsaPath); err == nil {
 		return ecdsaPath
 	}
