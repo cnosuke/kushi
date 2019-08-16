@@ -87,6 +87,7 @@ func main() {
 
 	var (
 		configPath    string
+		passphrase    string
 		logSTDOUTFlag bool
 	)
 
@@ -96,6 +97,12 @@ func main() {
 			Usage:       "Config path",
 			Value:       "",
 			Destination: &configPath,
+		},
+		cli.StringFlag{
+			Name:        "pass, p",
+			Usage:       "passphrase",
+			Value:       "",
+			Destination: &passphrase,
 		},
 		cli.BoolFlag{
 			Name:        "stdout",
@@ -125,7 +132,7 @@ func main() {
 
 			startSession(
 				config.SSHConfig.getServerAddr(),
-				config.SSHConfig.getClientConfig(),
+				config.SSHConfig.getClientConfig(passphrase),
 				time.Duration(config.SSHConfig.Timeout)*time.Second,
 				time.Duration(config.SSHConfig.KeepaliveInterval)*time.Second,
 				b,
