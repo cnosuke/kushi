@@ -2,31 +2,42 @@
 
 
 [[projects]]
-  digest = "1:e85837cb04b78f61688c6eba93ea9d14f60d611e2aaf8319999b1a60d2dafbfa"
+  branch = "master"
+  name = "github.com/ScaleFT/sshkeys"
+  packages = ["."]
+  revision = "82451a80368171b074c7129d43b47fc2773f6e9f"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/dchest/bcrypt_pbkdf"
+  packages = ["."]
+  revision = "83f37f9c154a678179d11e218bff73ebe5717f99"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
+
+[[projects]]
   name = "github.com/urfave/cli"
   packages = ["."]
-  pruneopts = ""
-  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
-  version = "v1.20.0"
+  revision = "e6cf83ec39f6e1158ced1927d4ed14578fda8edb"
+  version = "v1.21.0"
 
 [[projects]]
-  digest = "1:53a6fbacf8dce8fc9cbd4fab6a56eb169be7cb79b9fe601a152d6d9af68312bb"
   name = "go.uber.org/atomic"
   packages = ["."]
-  pruneopts = ""
-  revision = "4e336646b2ef9fc6e47be8e21594178f98e5ebcf"
-  version = "v1.2.0"
+  revision = "df976f2515e274675050de7b3f42545de80594fd"
+  version = "v1.4.0"
 
 [[projects]]
-  digest = "1:22c7effcb4da0eacb2bb1940ee173fac010e9ef3c691f5de4b524d538bd980f5"
   name = "go.uber.org/multierr"
   packages = ["."]
-  pruneopts = ""
   revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:cfeddca8479edac1039a52dac1ff6e7a76252ebaecb86680383b0522423b7565"
   name = "go.uber.org/zap"
   packages = [
     ".",
@@ -34,39 +45,41 @@
     "internal/bufferpool",
     "internal/color",
     "internal/exit",
-    "zapcore",
+    "zapcore"
   ]
-  pruneopts = ""
-  revision = "35aad584952c3e7020db7b839f6b102de6271f89"
-  version = "v1.7.1"
+  revision = "27376062155ad36be76b0f12cf1572a221d3a48c"
+  version = "v1.10.0"
 
 [[projects]]
-  digest = "1:c0ceab2eace6862590fd85f8356b4fff8a5c40ab167c2518943361f93bc39b4f"
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = [
+    "blowfish",
     "curve25519",
     "ed25519",
     "ed25519/internal/edwards25519",
-    "ssh",
+    "internal/chacha20",
+    "internal/subtle",
+    "poly1305",
+    "ssh"
   ]
-  pruneopts = ""
-  revision = "ca1fcd4ab4c10bc58852a894bcf195fab2229efe"
+  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
 
 [[projects]]
-  digest = "1:81314a486195626940617e43740b4fa073f265b0715c9f54ce2027fee1cb5f61"
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["cpu"]
+  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  pruneopts = ""
-  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/urfave/cli",
-    "go.uber.org/zap",
-    "golang.org/x/crypto/ssh",
-    "gopkg.in/yaml.v2",
-  ]
+  inputs-digest = "1d45a9f7168c20a11c1b57d06ee77d9ec7607500cda80983d8465820b51ba0ef"
   solver-name = "gps-cdcl"
   solver-version = 1
