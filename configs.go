@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/ScaleFT/sshkeys"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type SSHConfig struct {
@@ -45,7 +46,7 @@ func (c *SSHConfig) getKeyPath() string {
 	return ""
 }
 
-func (c *SSHConfig) getClientConfig() *ssh.ClientConfig {
+func (c *SSHConfig) getClientConfig(passphrase string) *ssh.ClientConfig {
 	keyPath := c.getKeyPath()
 	zap.S().Infof("Reading SSH key from %s", keyPath)
 
@@ -54,7 +55,13 @@ func (c *SSHConfig) getClientConfig() *ssh.ClientConfig {
 		zap.S().Fatal(err)
 	}
 
-	signer, err := ssh.ParsePrivateKey(key)
+	var signer ssh.Signer
+	if passphrase != "" {
+		bytePassphrase := []byte(passphrase)
+		signer, err = sshkeys.ParseEncryptedPrivateKey(key, bytePassphrase)
+	} else {
+		signer, err = ssh.ParsePrivateKey(key)
+	}
 	if err != nil {
 		zap.S().Fatal(err)
 	}
