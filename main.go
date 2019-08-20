@@ -86,9 +86,9 @@ func main() {
 	app.Usage = "SSH Agent to forwarding ports as configs."
 
 	var (
-		configPath    string
-		passphrase    string
-		logSTDOUTFlag bool
+		configPath     string
+		passphraseFlag bool
+		logSTDOUTFlag  bool
 	)
 
 	app.Flags = []cli.Flag{
@@ -98,11 +98,10 @@ func main() {
 			Value:       "",
 			Destination: &configPath,
 		},
-		cli.StringFlag{
+		cli.BoolFlag{
 			Name:        "pass, p",
 			Usage:       "passphrase",
-			Value:       "",
-			Destination: &passphrase,
+			Destination: &passphraseFlag,
 		},
 		cli.BoolFlag{
 			Name:        "stdout",
@@ -132,7 +131,7 @@ func main() {
 
 			startSession(
 				config.SSHConfig.getServerAddr(),
-				config.SSHConfig.getClientConfig(passphrase),
+				config.SSHConfig.getClientConfig(passphraseFlag),
 				time.Duration(config.SSHConfig.Timeout)*time.Second,
 				time.Duration(config.SSHConfig.KeepaliveInterval)*time.Second,
 				b,

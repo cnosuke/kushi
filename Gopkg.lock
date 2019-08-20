@@ -14,12 +14,6 @@
   revision = "83f37f9c154a678179d11e218bff73ebe5717f99"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
-  version = "v0.8.1"
-
-[[projects]]
   name = "github.com/urfave/cli"
   packages = ["."]
   revision = "e6cf83ec39f6e1158ced1927d4ed14578fda8edb"
@@ -63,7 +57,7 @@
     "poly1305",
     "ssh"
   ]
-  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
+  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
 
 [[projects]]
   branch = "master"
@@ -80,6 +74,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1d45a9f7168c20a11c1b57d06ee77d9ec7607500cda80983d8465820b51ba0ef"
+  inputs-digest = "187c128bae03e7ea0cee02a2c3a13e08a55e40ccf4c4ab8c92ddbfb9c44e7a91"
   solver-name = "gps-cdcl"
   solver-version = 1
