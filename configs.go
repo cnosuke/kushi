@@ -18,6 +18,7 @@ type SSHConfig struct {
 	Port              int    `yaml:"Port"`
 	KeepaliveInterval int    `yaml:"KeepaliveInterval"`
 	Timeout           int    `yaml:"Timeout"`
+	passphrase        string
 }
 
 func (c *SSHConfig) getServerAddr() string {
@@ -46,7 +47,7 @@ func (c *SSHConfig) getKeyPath() string {
 	return ""
 }
 
-func (c *SSHConfig) getClientConfig(passphrase string) *ssh.ClientConfig {
+func (c *SSHConfig) getClientConfig(passphraseFlag bool) *ssh.ClientConfig {
 	keyPath := c.getKeyPath()
 	zap.S().Infof("Reading SSH key from %s", keyPath)
 
@@ -56,8 +57,15 @@ func (c *SSHConfig) getClientConfig(passphrase string) *ssh.ClientConfig {
 	}
 
 	var signer ssh.Signer
-	if passphrase != "" {
-		bytePassphrase := []byte(passphrase)
+	if passphraseFlag {
+		if c.passphrase == "" {
+			var ok bool
+			c.passphrase, ok = InputBox("kushi", "Type passphrase")
+			if !ok {
+				zap.S().Fatal("No value entered")
+			}
+		}
+		bytePassphrase := []byte(c.passphrase)
 		signer, err = sshkeys.ParseEncryptedPrivateKey(key, bytePassphrase)
 	} else {
 		signer, err = ssh.ParsePrivateKey(key)
