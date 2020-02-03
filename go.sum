@@ -1,0 +1,16 @@
+github.com/ScaleFT/sshkeys v0.0.0-20181112160850-82451a803681 h1:JS2rl38kZmHgWa0xINSaSYH0Whtvem64/4+Ef0+Y5pE=
+github.com/ScaleFT/sshkeys v0.0.0-20181112160850-82451a803681/go.mod h1:WfDateMPQ/55dPbZRp5Zxrux5WiEaHsjk9puUhz0KgY=
+github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a h1:saTgr5tMLFnmy/yg3qDTft4rE5DY2uJ/cCxCe3q0XTU=
+github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a/go.mod h1:Bw9BbhOJVNR+t0jCqx2GC6zv0TGBsShs56Y3gfSCvl0=
+github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
+github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
+go.uber.org/atomic v1.2.0 h1:yVVGhClJ8Xi1y4TxhJZE6QFPrz76BrzhWA01n47mSFk=
+go.uber.org/atomic v1.2.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
+go.uber.org/multierr v1.1.0 h1:HoEmRHQPVSqub6w2z2d2EOVs2fjyFRGyofhKuyDq0QI=
+go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
+go.uber.org/zap v1.7.1 h1:wKPciimwkIgV4Aag/wpSDzvtO5JrfwdHKHO7blTHx7Q=
+go.uber.org/zap v1.7.1/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=
+golang.org/x/crypto v0.0.0-20171105172739-ca1fcd4ab4c1 h1:TTjkggq4gYz8qiSK4pcif+6tqnOHTxhsdJDZBaMSiVM=
+golang.org/x/crypto v0.0.0-20171105172739-ca1fcd4ab4c1/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
+gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7 h1:+t9dhfO+GNOIGJof6kPOAenx7YgrZMTdRPV+EsnPabk=
+gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7/go.mod h1:JAlM8MvJe8wmxCU4Bli9HhUf9+ttbYbLASfIpnQbh74=
