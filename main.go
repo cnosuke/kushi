@@ -92,18 +92,18 @@ func main() {
 	)
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:        "config, c",
 			Usage:       "Config path",
 			Value:       "",
 			Destination: &configPath,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:        "pass, p",
 			Usage:       "passphrase",
 			Destination: &passphraseFlag,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:        "stdout",
 			Usage:       "Output logs to STDOUT",
 			Destination: &logSTDOUTFlag,
