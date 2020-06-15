@@ -40,6 +40,16 @@ https://s3-ap-northeast-1.amazonaws.com/path_to_your_binding_list.yaml
   dst: your_awesome_mysql_server_host:3306
 ```
 
+#### or local file
+
+```
+% emacs ~/.config/kushi/config.yml
+```
+
+```yaml
+BindingConfigsURL: file:///path/to/your_binding_list.yaml (edit)
+```
+
 ### 3. Run kushi
 
 ```
