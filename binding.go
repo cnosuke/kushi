@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -62,6 +65,41 @@ func (c *bindingsCache) Watch() {
 }
 
 func (c *bindingsCache) Fetch() {
+	if strings.HasPrefix(c.url, "file") {
+		c.fetchLocalFile()
+	} else {
+		c.fetchHttp()
+	}
+}
+
+func (c *bindingsCache) fetchLocalFile() {
+	bytes, err := ioutil.ReadFile(strings.TrimPrefix(c.url, "file://"))
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	hash := md5.Sum(bytes)
+	md5Hash := hex.EncodeToString(hash[:])
+	if c.CompareEtag(md5Hash) {
+		return
+	}
+
+	var b []*binding
+	err = yaml.Unmarshal(bytes, &b)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	c.Update(b, md5Hash)
+	zap.S().Infow("Binding list updated", "url", c.url, "md5", md5Hash, "bindings", b)
+	if c.cancel != nil {
+		c.cancel()
+	}
+}
+
+func (c *bindingsCache) fetchHttp() {
 	req, _ := http.NewRequest("GET", c.url, nil)
 	req.Header.Set("If-None-Match", fmt.Sprintf("\"%s\"", c.etag))
 	cli := http.Client{Timeout: 5 * time.Second}
