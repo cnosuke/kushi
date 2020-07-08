@@ -3,12 +3,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/ScaleFT/sshkeys"
-  packages = ["."]
-  revision = "82451a80368171b074c7129d43b47fc2773f6e9f"
-
-[[projects]]
-  branch = "master"
   name = "github.com/dchest/bcrypt_pbkdf"
   packages = ["."]
   revision = "83f37f9c154a678179d11e218bff73ebe5717f99"
@@ -57,13 +51,13 @@
     "poly1305",
     "ssh"
   ]
-  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
+  revision = "75b288015ac94e66e3d6715fb68a9b41bf046ec2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["cpu"]
-  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+  revision = "97732733099d6a942a73b889770774366de963ed"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
