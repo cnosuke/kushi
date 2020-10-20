@@ -100,7 +100,7 @@ func main() {
 		},
 		&cli.BoolFlag{
 			Name:        "pass, p",
-			Usage:       "passphrase",
+			Usage:       "Be usable identity file with passphrase",
 			Destination: &passphraseFlag,
 		},
 		&cli.BoolFlag{
