@@ -57,6 +57,26 @@ BindingConfigsURL: file:///path/to/your_binding_list.yaml (edit)
 % kushi --stdout
 ```
 
+#### Options
+
+```
+GLOBAL OPTIONS:
+   --config value, -c value  Config path
+   --pass, -p                Be usable identity file with passphrase
+   --stdout                  Output logs to STDOUT
+   --help, -h                show help
+   --version, -v             print the version
+```
+
+#### Example with options
+
+```
+# You have two or more config files and identity file has passphrase.
+kushi --config ~/.config/kushi/alternative-server-config.yml --pass 
+```
+
+
+
 ### 4. (Optional) Run as daemon
 
 ```
