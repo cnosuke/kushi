@@ -3,11 +3,12 @@ module github.com/cnosuke/kushi
 go 1.13
 
 require (
-	github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a // indirect
-	github.com/urfave/cli v1.20.0
-	go.uber.org/atomic v1.2.0
-	go.uber.org/multierr v1.1.0
-	go.uber.org/zap v1.7.1
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7
+	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
+	github.com/urfave/cli v1.22.5
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/zap v1.21.0
+	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
