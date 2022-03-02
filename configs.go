@@ -206,7 +206,7 @@ func (c *SSHConfig) getSignerCallback(passphraseFlag bool) (func() ([]ssh.Signer
 			}
 		}
 
-		if len(signers) == 0 {
+		if len(signers) == 0 && trialState > 1 {
 			err = fmt.Errorf("no more public key signers available")
 			return
 		}
