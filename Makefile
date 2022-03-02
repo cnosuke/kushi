@@ -29,16 +29,6 @@ release-pack: cross-build
 		done; \
 	done
 
-.PHONY: install-dep
-install-dep:
-ifeq ($(shell command -v dep 2> /dev/null),)
-	go get -u github.com/golang/dep && go install -v github.com/golang/dep/cmd/dep
-endif
-
-.PHONY: deps
-deps: install-dep
-	dep ensure -v
-
 .PHONY: install
 install: bin/$(NAME)
 	cp bin/$(NAME) $$GOPATH/bin/$(NAME)
