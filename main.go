@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
@@ -93,13 +93,15 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:        "config, c",
+			Name:        "config",
+			Aliases:     []string{"c"},
 			Usage:       "Config path",
 			Value:       "",
 			Destination: &configPath,
 		},
 		&cli.BoolFlag{
-			Name:        "pass, p",
+			Name:        "pass",
+			Aliases:     []string{"p"},
 			Usage:       "passphrase",
 			Destination: &passphraseFlag,
 		},
