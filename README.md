@@ -1,8 +1,8 @@
-# Kushi: SSH Client with auto-sync SSH port fowarding settings.
+# Kushi: SSH Client with auto-sync SSH port forwarding settings.
 
 ## What is this?
 
-SSH Client + autossh + sync portfowarding settings on `.ssh/config`
+SSH Client + autossh + sync port forwarding settings on `.ssh/config`
 
 ## Usage
 
